@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#fff4d7">
+<title>萌寵逃脫－手機試玩版 V2</title>
+<style>
+:root{
+  --bg1:#fff7df; --bg2:#e7f8ff; --ink:#263238; --orange:#ff9f43;
+  --green:#39c97b; --red:#ff6b6b; --shadow:0 12px 30px rgba(40,70,80,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;color:var(--ink);background:linear-gradient(180deg,var(--bg1),var(--bg2));overscroll-behavior:none}
+body{min-height:100dvh;display:flex;justify-content:center}
+.app{width:min(100%,520px);min-height:100dvh;padding:max(12px,env(safe-area-inset-top)) 14px max(18px,env(safe-area-inset-bottom))}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:2px 0 10px}
+.brand{display:flex;align-items:center;gap:8px}
+.logo{width:44px;height:44px;border-radius:16px;background:#fff;display:grid;place-items:center;font-size:27px;box-shadow:0 7px 18px #0001}
+h1{font-size:21px;line-height:1.05;margin:0;font-weight:900}
+.sub{font-size:11px;opacity:.62;margin-top:4px;font-weight:700}
+.coins{background:#fff;padding:9px 13px;border-radius:18px;font-size:15px;font-weight:900;box-shadow:0 5px 16px #0001;white-space:nowrap}
+.status{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px}
+.badge{background:#ffffffc9;border:1px solid #ffffff;padding:8px 5px;border-radius:14px;text-align:center;font-size:12px;font-weight:800;box-shadow:0 4px 12px #0000000c}
+.badge b{display:block;font-size:17px;margin-top:1px}
+.board-wrap{position:relative;padding:12px 7px 5px}
+.board{
+ position:relative;width:100%;aspect-ratio:1/1;background:
+ radial-gradient(circle at 25% 20%,#ffffff55 0 9%,transparent 10%),
+ linear-gradient(135deg,#cdebbf,#dff5d7 52%,#c7e9bc);
+ border:7px solid #fff;border-radius:30px;box-shadow:var(--shadow);overflow:hidden
+}
+.grid{position:absolute;inset:7.5%;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(6,1fr);gap:4px}
+.cell{border-radius:11px;background:#ffffff38;border:1px dashed rgba(70,110,75,.15)}
+.animal{
+ appearance:none;border:0;width:92%;height:92%;place-self:center;border-radius:17px;
+ font-size:clamp(24px,8vw,35px);position:relative;box-shadow:0 5px 10px #0002;
+ display:grid;place-items:center;transition:transform .17s ease,filter .17s ease,opacity .2s;
+ touch-action:manipulation;user-select:none
+}
+.animal:active{transform:scale(.88)}
+.animal.blocked{animation:shake .25s linear}
+@keyframes shake{25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+.dog{background:#ffd166}.cat{background:#ffb3c1}.chick{background:#ffe66d}.rabbit{background:#d8c4ef}.panda{background:#f5f5f5}.frog{background:#a8e6a3}
+.arrow{position:absolute;right:3px;top:2px;min-width:19px;height:19px;padding:0 4px;border-radius:10px;background:#263238;color:white;font-size:12px;display:grid;place-items:center;font-weight:900}
+.exit{position:absolute;z-index:3;background:var(--green);color:white;font-size:11px;font-weight:900;letter-spacing:.5px;padding:4px 9px;border-radius:12px;box-shadow:0 3px 8px #0002}
+.exit.t{top:1px;left:50%;transform:translateX(-50%)}.exit.b{bottom:1px;left:50%;transform:translateX(-50%)}
+.exit.l{left:1px;top:50%;transform:translateY(-50%) rotate(-90deg)}.exit.r{right:1px;top:50%;transform:translateY(-50%) rotate(90deg)}
+.toast{height:54px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:14px;font-weight:800;padding:8px 12px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.btn{appearance:none;border:0;background:#fff;border-radius:18px;padding:13px 10px;font-size:15px;font-weight:900;color:var(--ink);box-shadow:0 6px 17px #0001;touch-action:manipulation}
+.btn:active{transform:scale(.97)}
+.hint{background:#fff3bd}.restart{background:#fff}
+.progress{height:8px;background:#ffffffa0;border-radius:8px;overflow:hidden;margin:10px 4px 3px}
+.progress>i{display:block;height:100%;background:linear-gradient(90deg,#ffb24d,#ff8f43);border-radius:8px;width:10%;transition:width .3s}
+.footer{text-align:center;font-size:11px;opacity:.55;font-weight:700;padding-top:7px}
+.overlay{position:fixed;inset:0;background:rgba(15,25,30,.5);display:none;align-items:center;justify-content:center;padding:24px;z-index:20;backdrop-filter:blur(4px)}
+.modal{background:#fff;border-radius:28px;padding:26px 22px 22px;width:min(100%,350px);text-align:center;box-shadow:0 25px 70px #0005}
+.stars{font-size:42px}.modal h2{font-size:29px;margin:4px 0 5px}.modal p{margin:5px 0 17px;font-weight:700;opacity:.75}
+.primary{appearance:none;border:0;background:var(--orange);color:white;width:100%;padding:14px;border-radius:18px;font-size:17px;font-weight:900}
+.confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.confetti span{position:absolute;font-size:22px;animation:fall 1.1s ease-out forwards}
+@keyframes fall{from{transform:translateY(-30px) rotate(0);opacity:1}to{transform:translateY(420px) rotate(220deg);opacity:0}}
+@media (max-height:690px){.logo{width:38px;height:38px}.board-wrap{padding-top:5px}.toast{height:42px}.btn{padding:10px}.status{margin-bottom:4px}.footer{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">
+      <div class="logo">🐾</div>
+      <div><h1>萌寵逃脫</h1><div class="sub">Animal Escape · 手機試玩 V2</div></div>
+    </div>
+    <div class="coins">🪙 <span id="coins">0</span></div>
+  </div>
+
+  <div class="status">
+    <div class="badge">關卡<b><span id="levelNo">1</span>/12</b></div>
+    <div class="badge">剩餘<b id="left">0</b></div>
+    <div class="badge">連續逃脫<b id="combo">0</b></div>
+  </div>
+
+  <div class="board-wrap">
+    <div class="board">
+      <div class="exit t">出口</div><div class="exit b">出口</div><div class="exit l">出口</div><div class="exit r">出口</div>
+      <div id="grid" class="grid"></div>
+      <div id="confetti" class="confetti"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">點一隻萌寵，牠前方沒有其他動物就能逃出去！</div>
+  <div class="actions">
+    <button class="btn hint" id="hintBtn">💡 提示</button>
+    <button class="btn restart" id="restartBtn">↻ 重玩本關</button>
+  </div>
+  <div class="progress"><i id="progressBar"></i></div>
+  <div class="footer">先測試核心玩法；正式版再加入 3D 動畫、音效、特殊障礙與獎勵廣告。</div>
+</div>
+
+<div id="overlay" class="overlay">
+  <div class="modal">
+    <div class="stars">⭐️⭐️⭐️</div>
+    <h2>成功逃脫！</h2>
+    <p>本關獎勵 🪙 20</p>
+    <button id="nextBtn" class="primary">下一關</button>
+  </div>
+</div>
+
+<script>
+const dirs={U:[-1,0,'↑'],D:[1,0,'↓'],L:[0,-1,'←'],R:[0,1,'→']};
+const pets=[
+ ['dog','🐶','狗狗'],['cat','🐱','貓咪'],['chick','🐥','小雞'],
+ ['rabbit','🐰','兔兔'],['panda','🐼','熊貓'],['frog','🐸','青蛙']
+];
+
+// 每一關刻意維持簡單、能快速理解；之後再做正式關卡生成器。
+const levels=[
+ [[2,2,'U'],[3,2,'D'],[2,3,'R']],
+ [[1,1,'U'],[2,1,'L'],[2,2,'R'],[3,2,'D']],
+ [[1,2,'R'],[1,3,'D'],[2,3,'L'],[2,2,'U'],[4,4,'D']],
+ [[1,1,'R'],[1,2,'D'],[2,2,'L'],[2,1,'U'],[3,3,'R'],[3,4,'D']],
+ [[0,2,'U'],[1,2,'R'],[1,3,'D'],[2,3,'L'],[2,2,'U'],[4,1,'L']],
+ [[1,0,'L'],[1,1,'R'],[1,3,'U'],[2,3,'L'],[2,2,'D'],[4,4,'R'],[4,5,'R']],
+ [[0,1,'U'],[1,1,'R'],[1,2,'D'],[2,2,'R'],[2,3,'U'],[3,3,'L'],[4,3,'D']],
+ [[1,1,'D'],[2,1,'R'],[2,2,'U'],[1,2,'R'],[1,4,'U'],[3,4,'D'],[4,2,'L'],[4,1,'D']],
+ [[0,3,'U'],[1,3,'L'],[1,2,'D'],[2,2,'R'],[2,3,'D'],[3,3,'L'],[3,1,'L'],[4,4,'D']],
+ [[1,1,'R'],[1,2,'D'],[2,2,'R'],[2,3,'U'],[3,3,'L'],[3,2,'D'],[4,2,'L'],[4,1,'D'],[0,4,'U']],
+ [[0,0,'U'],[0,2,'R'],[1,2,'D'],[2,2,'L'],[2,1,'D'],[3,1,'R'],[3,3,'U'],[4,3,'D'],[5,5,'D']],
+ [[0,4,'U'],[1,4,'L'],[1,3,'D'],[2,3,'R'],[2,4,'D'],[3,4,'L'],[3,2,'U'],[2,2,'L'],[4,2,'D'],[4,0,'L']]
+];
+
+let level=0, animals=[], coins=0, combo=0, originalCount=0;
+const grid=document.getElementById('grid'), toast=document.getElementById('toast'),
+overlay=document.getElementById('overlay'), progress=document.getElementById('progressBar');
+
+function haptic(ms=25){ if(navigator.vibrate) navigator.vibrate(ms); }
+
+function load(){
+  animals=levels[level].map((x,i)=>({r:x[0],c:x[1],d:x[2],id:i,type:i%pets.length}));
+  originalCount=animals.length; combo=0;
+  overlay.style.display='none';
+  document.getElementById('levelNo').textContent=level+1;
+  toast.textContent='點一隻萌寵，牠前方沒有其他動物就能逃出去！';
+  render();
+}
+
+function render(){
+  grid.innerHTML='';
+  for(let r=0;r<6;r++) for(let c=0;c<6;c++){
+    const cell=document.createElement('div');
+    cell.className='cell'; cell.style.gridRow=r+1; cell.style.gridColumn=c+1;
+    grid.appendChild(cell);
+  }
+  animals.forEach(a=>{
+    const p=pets[a.type], b=document.createElement('button');
+    b.className='animal '+p[0];
+    b.setAttribute('aria-label',p[2]+' 往 '+dirs[a.d][2]);
+    b.innerHTML=p[1]+'<span class="arrow">'+dirs[a.d][2]+'</span>';
+    b.style.gridRow=a.r+1; b.style.gridColumn=a.c+1;
+    b.addEventListener('click',()=>move(a.id,b));
+    grid.appendChild(b);
+  });
+  document.getElementById('left').textContent=animals.length;
+  document.getElementById('combo').textContent=combo;
+  progress.style.width=((originalCount-animals.length)/originalCount*100)+'%';
+}
+
+function clearPath(a){
+  const [dr,dc]=dirs[a.d]; let r=a.r+dr,c=a.c+dc;
+  while(r>=0&&r<6&&c>=0&&c<6){
+    if(animals.some(x=>x.id!==a.id&&x.r===r&&x.c===c)) return false;
+    r+=dr;c+=dc;
+  }
+  return true;
+}
+
+function move(id,button){
+  const a=animals.find(x=>x.id===id); if(!a)return;
+  if(!clearPath(a)){
+    combo=0; document.getElementById('combo').textContent=0;
+    button.classList.remove('blocked'); void button.offsetWidth; button.classList.add('blocked');
+    toast.textContent='😵 被擋住了！先讓前面的萌寵離開。'; haptic(45); return;
+  }
+  combo++;
+  animals=animals.filter(x=>x.id!==id);
+  toast.textContent=combo>=3?'🔥 連續 '+combo+' 隻！':'✨ '+pets[a.type][2]+'成功逃脫！';
+  haptic(18); render();
+  if(!animals.length) win();
+}
+
+function win(){
+  coins+=20;
+  document.getElementById('coins').textContent=coins;
+  confetti();
+  setTimeout(()=>overlay.style.display='flex',350);
+}
+
+function confetti(){
+  const box=document.getElementById('confetti');
+  box.innerHTML='';
+  ['✨','⭐','🎉','🐾','💛','💚'].forEach((x,i)=>{
+    for(let j=0;j<2;j++){
+      const s=document.createElement('span');
+      s.textContent=x;s.style.left=(8+Math.random()*84)+'%';
+      s.style.top=(-10-Math.random()*80)+'px';
+      s.style.animationDelay=(Math.random()*.22)+'s';
+      box.appendChild(s);
+    }
+  });
+  setTimeout(()=>box.innerHTML='',1400);
+}
+
+function hint(){
+  const a=animals.find(clearPath);
+  if(!a){toast.textContent='這一局卡住了，按「重玩本關」再試一次。'; return;}
+  const p=pets[a.type];
+  toast.textContent='💡 提示：找 '+p[1]+' '+p[2]+'，箭頭是 '+dirs[a.d][2];
+  haptic(12);
+}
+
+document.getElementById('hintBtn').addEventListener('click',hint);
+document.getElementById('restartBtn').addEventListener('click',load);
+document.getElementById('nextBtn').addEventListener('click',()=>{
+  level=(level+1)%levels.length; load();
+});
+load();
+</script>
+</body>
+</html>
